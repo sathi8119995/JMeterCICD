@@ -23,10 +23,7 @@ pipeline {
 
         stage('Build JMeter Image') {
             steps {
-                // Disable BuildKit and use host network to avoid Windows/Network issues
-                withEnv(['DOCKER_BUILDKIT=0']) {
-                    bat 'docker build --network=host -t jmeter-test -f Dockerfile .'
-                }
+                bat 'docker build -t jmeter-test -f docker/Dockerfile .'
             }
         }
 
@@ -35,19 +32,17 @@ pipeline {
                 // Cleanup previous container so we can reuse the name (ignore error if not exists)
                 bat 'docker rm -f jmeter-runner || echo Container not found, skipping removal'
 
-                // Debug: Verify script existence before running Docker to avoid confusing container errors
-                bat 'if not exist "Script1_Final.jmx" (echo ERROR: Script not found at root. & dir /s & exit 1)'
-
                 // Ensure results directory is clean before running; JMeter requires empty dir for HTML report
                 bat 'if exist jmeter\\results rmdir /s /q jmeter\\results'
                 bat 'mkdir jmeter\\results'
                 bat """
                 docker run --name jmeter-runner ^
+                  -v "%WORKSPACE%":/jenkins_workspace ^
                   -v "%WORKSPACE%\\jmeter\\results":/jmeter/results ^
-                  -v "%WORKSPACE%":/scripts ^
+                  -v "%WORKSPACE%\\jmeter\\scripts":/jmeter/scripts ^
                   jmeter-test ^
                   -n ^
-                  -t /scripts/Script1_Final.jmx ^
+                  -t /jmeter/scripts/login_test.jmx ^
                   -l /jmeter/results/result.jtl ^
                   -e -o /jmeter/results/html ^
                   -Jthreads=${THREADS} ^
@@ -62,11 +57,12 @@ pipeline {
 
         stage('Publish Report') {
             steps {
-                publishHTML([
-                    reportDir: 'jmeter/results/html',
-                    reportFiles: 'index.html',
-                    reportName: 'JMeter Performance Report'
-                ])
+                echo 'HTML Publisher Plugin not installed. Skipping report generation.'
+                // publishHTML([
+                //     reportDir: 'jmeter/results/html',
+                //     reportFiles: 'index.html',
+                //     reportName: 'JMeter Performance Report'
+                // ])
             }
         }
     }
