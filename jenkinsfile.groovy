@@ -15,7 +15,6 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                // TODO: Update 'url' to your actual GitHub repository URL
                 git branch: 'main',
                     url: 'https://github.com/sathi8119995/JMeterCICD.git'
             }
