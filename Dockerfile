@@ -11,7 +11,7 @@ RUN apt-get update && \
 
 # Download and unpack JMeter
 WORKDIR /opt
-RUN wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz && \
+RUN wget --inet4-only --tries=5 --wait=5 https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz && \
     tar -xzf apache-jmeter-${JMETER_VERSION}.tgz && \
     rm apache-jmeter-${JMETER_VERSION}.tgz && \
     mv apache-jmeter-${JMETER_VERSION} jmeter
