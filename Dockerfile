@@ -6,12 +6,12 @@ ARG JMETER_VERSION=5.6.3
 
 # Install utilities (wget to download JMeter, unzip/tar to extract)
 RUN apt-get update && \
-    apt-get install -y wget tar && \
+    apt-get install -y curl tar && \
     rm -rf /var/lib/apt/lists/*
 
 # Download and unpack JMeter
 WORKDIR /opt
-RUN wget --inet4-only --tries=5 --wait=5 https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz && \
+RUN curl -fSL --retry 5 --retry-delay 5 https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.tgz -o apache-jmeter-${JMETER_VERSION}.tgz && \
     tar -xzf apache-jmeter-${JMETER_VERSION}.tgz && \
     rm apache-jmeter-${JMETER_VERSION}.tgz && \
     mv apache-jmeter-${JMETER_VERSION} jmeter
