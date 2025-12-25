@@ -1,0 +1,9 @@
+.idea/
+.vscode/
+dist/
+build/
+.env
+.bak
+.out
+*.err
+
