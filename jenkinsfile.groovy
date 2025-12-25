@@ -7,6 +7,10 @@ pipeline {
         string(name: 'LOOP', defaultValue: '5')
     }
 
+    triggers {
+        pollSCM 'H/15 * * * *'
+    }
+
     stages {
 
         stage('Checkout Code') {
@@ -19,25 +23,26 @@ pipeline {
 
         stage('Build JMeter Image') {
             steps {
-                sh 'docker build -t jmeter-test -f docker/Dockerfile .'
+                bat 'docker build -t jmeter-test -f docker/Dockerfile .'
             }
         }
 
         stage('Run JMeter Test') {
             steps {
                 // Ensure results directory is clean before running; JMeter requires empty dir for HTML report
-                sh 'rm -rf jmeter/results && mkdir -p jmeter/results'
-                sh """
-                docker run --rm \
-                  -v \$(pwd)/jmeter/results:/jmeter/results \
-                  -v \$(pwd)/jmeter/scripts:/jmeter/scripts \
-                  jmeter-test \
-                  -n \
-                  -t /jmeter/scripts/login_test.jmx \
-                  -l /jmeter/results/result.jtl \
-                  -e -o /jmeter/results/html \
-                  -Jthreads=${THREADS} \
-                  -Jrampup=${RAMPUP} \
+                bat 'if exist jmeter\\results rmdir /s /q jmeter\\results'
+                bat 'mkdir jmeter\\results'
+                bat """
+                docker run --rm ^
+                  -v "%WORKSPACE%/jmeter/results":/jmeter/results ^
+                  -v "%WORKSPACE%/jmeter/scripts":/jmeter/scripts ^
+                  jmeter-test ^
+                  -n ^
+                  -t /jmeter/scripts/login_test.jmx ^
+                  -l /jmeter/results/result.jtl ^
+                  -e -o /jmeter/results/html ^
+                  -Jthreads=${THREADS} ^
+                  -Jrampup=${RAMPUP} ^
                   -Jloop=${LOOP}
                 """
             }
