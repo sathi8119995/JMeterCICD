@@ -15,7 +15,6 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                checkout scm
                 // Debug: List files to confirm checkout worked and files are present
                 bat 'dir'
             }
