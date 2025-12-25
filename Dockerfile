@@ -1,5 +1,5 @@
 # Use a lightweight Java image
-FROM eclipse-temurin:11-jre
+FROM azul/zulu-openjdk:11
 
 # JMeter version
 ARG JMETER_VERSION=5.6.3

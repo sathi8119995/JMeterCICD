@@ -23,7 +23,8 @@ pipeline {
 
         stage('Build JMeter Image') {
             steps {
-                bat 'docker build -t jmeter-test -f Dockerfile .'
+                // Disable BuildKit to avoid network protocol errors
+                bat 'set DOCKER_BUILDKIT=0 & docker build -t jmeter-test -f Dockerfile .'
                 // Verify that the image was created successfully by listing it
                 bat 'docker images jmeter-test'
             }
