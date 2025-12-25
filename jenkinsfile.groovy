@@ -24,6 +24,8 @@ pipeline {
         stage('Build JMeter Image') {
             steps {
                 bat 'docker build -t jmeter-test -f docker/Dockerfile .'
+                // Verify that the image was created successfully by listing it
+                bat 'docker images jmeter-test'
             }
         }
 
