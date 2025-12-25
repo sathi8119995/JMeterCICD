@@ -30,7 +30,7 @@ pipeline {
         stage('Run JMeter Test') {
             steps {
                 // Cleanup previous container so we can reuse the name (ignore error if not exists)
-                bat 'docker rm -f jmeter-runner || exit 0'
+                bat 'docker rm -f jmeter-runner || echo Container not found, skipping removal'
 
                 // Ensure results directory is clean before running; JMeter requires empty dir for HTML report
                 bat 'if exist jmeter\\results rmdir /s /q jmeter\\results'
@@ -49,6 +49,9 @@ pipeline {
                   -Jrampup=${RAMPUP} ^
                   -Jloop=${LOOP}
                 """
+
+                // Debug: Verify container exists and show status (likely 'Exited')
+                bat 'docker ps -a --filter "name=jmeter-runner"'
             }
         }
 
