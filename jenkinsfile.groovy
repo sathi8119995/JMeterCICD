@@ -24,7 +24,7 @@ pipeline {
             steps {
                 // Disable BuildKit using withEnv to avoid Windows batch syntax errors
                 withEnv(['DOCKER_BUILDKIT=0']) {
-                    bat 'docker build -t jmeter-test -f Dockerfile .'
+                    bat 'docker build --network=host -t jmeter-test -f Dockerfile .'
                 }
                 // Verify that the image was created successfully by listing it
                 bat 'docker images jmeter-test'
