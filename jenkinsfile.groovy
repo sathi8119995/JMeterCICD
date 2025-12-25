@@ -15,8 +15,9 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/sathi8119995/JMeterCICD.git'
+                checkout scm
+                // Debug: List files to confirm checkout worked and files are present
+                bat 'dir'
             }
         }
 
@@ -28,13 +29,16 @@ pipeline {
 
         stage('Run JMeter Test') {
             steps {
+                // Cleanup previous container so we can reuse the name (ignore error if not exists)
+                bat 'docker rm -f jmeter-runner || exit 0'
+
                 // Ensure results directory is clean before running; JMeter requires empty dir for HTML report
                 bat 'if exist jmeter\\results rmdir /s /q jmeter\\results'
                 bat 'mkdir jmeter\\results'
                 bat """
-                docker run --rm ^
-                  -v "%WORKSPACE%/jmeter/results":/jmeter/results ^
-                  -v "%WORKSPACE%/jmeter/scripts":/jmeter/scripts ^
+                docker run --name jmeter-runner ^
+                  -v "%WORKSPACE%\\jmeter\\results":/jmeter/results ^
+                  -v "%WORKSPACE%\\jmeter\\scripts":/jmeter/scripts ^
                   jmeter-test ^
                   -n ^
                   -t /jmeter/scripts/login_test.jmx ^
