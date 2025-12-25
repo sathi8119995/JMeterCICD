@@ -15,6 +15,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
+                checkout scm
                 // Debug: List files to confirm checkout worked and files are present
                 bat 'dir'
             }
@@ -22,12 +23,7 @@ pipeline {
 
         stage('Build JMeter Image') {
             steps {
-                // Disable BuildKit using withEnv to avoid Windows batch syntax errors
-                withEnv(['DOCKER_BUILDKIT=0']) {
-                    bat 'docker build --network=host -t jmeter-test -f Dockerfile .'
-                }
-                // Verify that the image was created successfully by listing it
-                bat 'docker images jmeter-test'
+                bat 'docker build -t jmeter-test -f docker/Dockerfile .'
             }
         }
 
@@ -35,6 +31,9 @@ pipeline {
             steps {
                 // Cleanup previous container so we can reuse the name (ignore error if not exists)
                 bat 'docker rm -f jmeter-runner || echo Container not found, skipping removal'
+
+                // Debug: Verify script existence before running Docker to avoid confusing container errors
+                bat 'if not exist "jmeter\\scripts\\login_test.jmx" (echo ERROR: Script not found at jmeter\\scripts\\login_test.jmx & dir /s & exit 1)'
 
                 // Ensure results directory is clean before running; JMeter requires empty dir for HTML report
                 bat 'if exist jmeter\\results rmdir /s /q jmeter\\results'
