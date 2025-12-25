@@ -23,7 +23,10 @@ pipeline {
 
         stage('Build JMeter Image') {
             steps {
-                bat 'docker build -t jmeter-test -f docker/Dockerfile .'
+                // Disable BuildKit and use host network to avoid Windows/Network issues
+                withEnv(['DOCKER_BUILDKIT=0']) {
+                    bat 'docker build --network=host -t jmeter-test -f Dockerfile .'
+                }
             }
         }
 
