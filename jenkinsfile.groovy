@@ -37,6 +37,7 @@ pipeline {
                 bat 'mkdir jmeter\\results'
                 bat """
                 docker run --name jmeter-runner ^
+                  -v "%WORKSPACE%":/jenkins_workspace ^
                   -v "%WORKSPACE%\\jmeter\\results":/jmeter/results ^
                   -v "%WORKSPACE%\\jmeter\\scripts":/jmeter/scripts ^
                   jmeter-test ^
